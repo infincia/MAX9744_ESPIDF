@@ -1,0 +1,21 @@
+menu "MAX9744 audio amplifier"
+
+config MAX9744_ESPIDF_ENABLED
+    bool "Enable MAX9744 support"
+    default false
+    help
+        Enables compilation of the MAX9744 support code
+
+config MAX9744_ESPIDF_I2C_SDA_GPIO
+    int "GPIO pin for I2C SDA"
+    default 21
+    help
+        The GPIO pin to use for the I2C SDA wire
+
+config MAX9744_ESPIDF_I2C_SCL_GPIO
+    int "GPIO pin for I2C SCL"
+    default 22
+    help
+        The GPIO pin to use for the I2C SCL wire
+
+endmenu

@@ -1,0 +1,22 @@
+{
+    "name": "max9744_espidf",
+    "keywords": "amplifier, stereo, max9744, i2c, esp-idf",
+    "description": "An ESP32 IDF component for the MAX9744 audio amplifier IC",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/infincia/max9744_espidf.git"
+    },
+    "authors":
+    [
+      {
+        "name": "Stephen Oliver",
+        "email": "steve@infincia.com",
+        "url": "https://infincia.com",
+        "maintainer": true
+      }
+    ],
+    "version": "0.1.0",
+    "frameworks": "espidf",
+    "platforms": "espressif32"
+  }
