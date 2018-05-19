@@ -6,15 +6,39 @@ from an ESP32 IDF project. These are the same amplifier ICs used on the
 
 ### Installation
 
-If you're using a normal ESP-IDF project, just clone this repository into
-your `components` directory inside the project:
+Connect the I2C wires to the GPIOs you have chosen to use, then follow the
+PlatformIO or ESP-IDF build system instructions below.
+
+**Note:** You must enable the component before it will be compiled at all, this 
+is to allow excluding it completely if necessary.
+
+The only real settings are the GPIO numbers, which are 21 for SDA and 22 for
+SCL, by default. However if you need to change them, the way to do that is
+different depending on whether you're using PlatformIO or the ESP-IDF build
+system.
+
+Keep in mind those are the actual GPIO numbers used by the ESP32 rather than 
+pin numbers, so if your ESP32 board uses a custom number scheme for the header 
+pins you will have to figure out which GPIOs they are actually connected to first.
+
+
+#### ESP-IDF build system
+
+Clone this repository into your `components` directory inside the project:
 
     cd components
     git clone https://github.com/infincia/max9744_espidf.git
 
 
-However if you're using PlatformIO, you can alternatively add this repository
-as a library in your platformio.ini:
+Then, run the `make menuconfig` command from the root of your ESP-IDF project. 
+
+The MAX9744 configuration will appear under the `components` section. 
+
+
+#### PlatformIO
+
+Add this repository as a library in your `platformio.ini` file in the root of 
+your project, and add the correct build flags as well:
 
     [env:development]
     platform = espressif32
@@ -22,26 +46,45 @@ as a library in your platformio.ini:
     framework = espidf
     lib_deps =
       https://github.com/infincia/max9744_espidf.git#v0.1.0
+    build_flags = !echo "-DCONFIG_MAX9744_ESPIDF_ENABLED=1" "-DCONFIG_MAX9744_ESPIDF_I2C_SDA_GPIO=21" "-DCONFIG_MAX9744_ESPIDF_I2C_SCL_GPIO=22"
 
-**Note:** I haven't tested this with PlatformIO at all, since it doesn't fully
+
+**Note:** I haven't tested this much with PlatformIO, since it doesn't fully
 support ESP-IDF v3.0 yet. This is partly why the library is not submitted to
 the PlatformIO library registry at the moment.
 
-### Setup
 
-Connect the I2C wires to the GPIOs you have chosen to use, then run the
-`make menuconfig` command from the root of your IDF project. The MAX9744
-configuration will appear under the `components` section. You must enable
-the component before it will be compiled at all, this is to allow excluding
-it completely if necessary.
+### Full example of usage
 
-The only real settings are the GPIO numbers, which are 21 for SDA and 22 for
-SCL, by default. Keep in mind those are the actual GPIO numbers used by the
-ESP32 rather than pin numbers, so if your ESP32 board uses a custom number
-scheme for the header pins you will have to figure out which GPIOs they are
-actually connected to first.
+This is a bare minimum `main.c` file you can refer to when using this library. 
 
-Once the component is enabled all you need to do is import the correct header
+Most users will not need to call any of the other functions in the library. You 
+will likely want to call the `max9744_set_volume()` function in response to IR 
+commands or HTTP requests, however those are significantly more complex than this 
+library so I've included a simple example instead.
+
+
+    #include <esp_err.h>
+    #include <esp_log.h>
+    static const char *TAG = "[MyProject]";
+
+    #include <max9744_espidf.h>
+
+    uint8_t volume = 30;
+
+    int app_main() {
+        max9744_init();
+
+        if (ESP_OK != max9744_set_volume(volume)) {
+            ESP_LOGE(TAG, "set volume failed");
+        }
+        return 0;
+    }
+
+
+### Initialization
+
+Once the component is enabled, all you need to do is import the correct header
 and call the initialization function:
 
     #include <max9744_espidf.h>
@@ -68,6 +111,7 @@ to you, it's basically the equivalent of a slightly loud TV in a small room.
 
 To set the volume to a specific level:
 
+    #include <esp_err.h>
     #include <esp_log.h>
     static const char *TAG = "[MyProject]";
 
@@ -81,6 +125,7 @@ To set the volume to a specific level:
 
 #### Increase/decrease volume
 
+    #include <esp_err.h>
     #include <esp_log.h>
     static const char *TAG = "[MyProject]";
 
@@ -110,6 +155,7 @@ own stateful volume increase/decrease functions to make things easier.
 
 #### Set filterless modulation
 
+    #include <esp_err.h>
     #include <esp_log.h>
     static const char *TAG = "[MyProject]";
 
@@ -126,6 +172,7 @@ know, this is the default on the Adafruit 20w breakout.
 
 #### Set classic PWM modulation
 
+    #include <esp_err.h>
     #include <esp_log.h>
     static const char *TAG = "[MyProject]";
 
